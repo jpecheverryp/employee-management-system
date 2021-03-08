@@ -1,0 +1,24 @@
+{
+  "name": "10-employee-management-system",
+  "version": "1.0.0",
+  "description": "Content Management System for Employees in a company. Uses Node, Inquirer and MySQL to store the information of every department, role, salary and employees of a company.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jpecheverryp/employee-management-system.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jpecheverryp/employee-management-system/issues"
+  },
+  "homepage": "https://github.com/jpecheverryp/employee-management-system#readme",
+  "dependencies": {
+    "inquirer": "^8.0.0",
+    "mysql": "^2.18.1"
+  }
+}
