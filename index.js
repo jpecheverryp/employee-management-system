@@ -33,6 +33,7 @@ function start() {
                 choices: [
                     "View all Employees",
                     "Add a Department",
+                    "Add a Role",
                     "Exit"
                 ]
             }
@@ -45,6 +46,9 @@ function start() {
                 case "Add a Department":
                     addDepartment();
                     break;
+                case "Add a Role":
+                    addRole();
+                    break;
                 case "Exit":
                     console.log("Terminating Program");
                     connection.end();
@@ -54,8 +58,8 @@ function start() {
             }
         })
         .catch(err => {
-            if (err) throw err;
             connection.end();
+            if (err) throw err;
         })
 }
 
@@ -108,7 +112,54 @@ function addDepartment() {
             })
         })
         .catch((err) => {
-            if (err) throw err;
             connection.end();
+            if (err) throw err;
         });
+}
+// Add Role
+function addRole() {
+    connection.query("Select * from Departments", (err, data) => {
+        if (err) throw err;
+        const departmentsNames = data.map(element => element.name);
+        inquirer
+            .prompt([
+                {
+                    name: "roleTitle",
+                    message: "What would you like to name the Role?",
+                    type: "input"
+                },
+                {
+                    name: "salary",
+                    message: "What would you like the salary for this role to be?",
+                    type: "number"
+                },
+                {
+                    name: "department",
+                    message: "What Department would you like to assign to this role?",
+                    type: "list",
+                    choices: departmentsNames
+                }
+            ])
+            .then(response => {
+                // dbInfo is the object that will go to mysql
+                const dbInfo = {
+                    title: response.roleTitle,
+                    salary: response.salary,
+                    // Get Id of the department where the name of the department is the same than the selected department
+                    department_id: data.find(element => element.name === response.department).id
+                }
+                connection.query(`
+                INSERT INTO Roles SET ?`, 
+                dbInfo, 
+                (err, res) => {
+                    if (err) throw err;
+                    console.log(`The Role ${response.roleTitle} Has been inserted`);
+                    start();
+                })
+            })
+            .catch((err) => {
+                connection.end();
+                if (err) throw err;
+            })
+    });
 }
