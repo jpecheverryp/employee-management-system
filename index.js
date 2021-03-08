@@ -32,15 +32,18 @@ function start() {
                 type: "list",
                 choices: [
                     "View all Employees",
+                    "Add a Department",
                     "Exit"
                 ]
             }
         ])
         .then(response => {
-            // TODO: add every case for every function
             switch (response.action) {
                 case "View all Employees":
                     viewAllEmployees();
+                    break;
+                case "Add a Department":
+                    addDepartment();
                     break;
                 case "Exit":
                     console.log("Terminating Program");
@@ -56,7 +59,8 @@ function start() {
         })
 }
 
-// TODO: add funcitonality to view all employees
+// ------------------------  Views  ------------------------- //
+// View All Employees
 function viewAllEmployees() {
     connection.query(`
     SELECT
@@ -79,4 +83,32 @@ function viewAllEmployees() {
         console.table(data);
         start();
     })
+}
+// ------------------------  Adding Data  ------------------------- //
+// Add Department
+function addDepartment() {
+    inquirer
+        .prompt([
+            {
+                name: "departmentName",
+                type: "input",
+                message: "How would you like to call this Department?"
+            }
+        ])
+        .then(response => {
+            connection.query(`
+            INSERT INTO Departments SET ?`, 
+            {
+                name: [response.departmentName]
+            },
+            (err, res) => {
+                if (err) throw err;
+                console.log(`The Department ${response.departmentName} has been Inserted!`);
+                start();
+            })
+        })
+        .catch((err) => {
+            if (err) throw err;
+            connection.end();
+        });
 }
