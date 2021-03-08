@@ -1,6 +1,7 @@
 // Modules
 const mysql = require("mysql");
 const inquirer = require("inquirer");
+const cTable = require("console.table");
 
 // Creating connection to database
 const connection = mysql.createConnection({
@@ -48,9 +49,6 @@ function start() {
                 default:
                     break;
             }
-            if (response.action !== "Exit") {
-                start();
-            }
         })
         .catch(err => {
             if (err) throw err;
@@ -60,5 +58,25 @@ function start() {
 
 // TODO: add funcitonality to view all employees
 function viewAllEmployees() {
-    console.log("im being called ")
+    connection.query(`
+    SELECT
+        e.id,
+        e.first_name, e.last_name, 
+        r.title,
+        d.name,
+        r.salary,
+        CONCAT(m.first_name, ' ', m.last_name) as manager
+    FROM (
+        Employees AS e,
+        Roles AS r,
+        Departments AS d
+        )
+    LEFT JOIN Employees AS m
+    ON e.manager_id = m.id
+    WHERE e.role_id = r.id AND r.department_id = d.id;
+    `, (err, data) => {
+        if (err) throw err;
+        console.table(data);
+        start();
+    })
 }
