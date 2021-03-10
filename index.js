@@ -32,6 +32,7 @@ function start() {
                 type: "list",
                 choices: [
                     "View all Employees",
+                    "View all Departments",
                     "Add a Department",
                     "Add a Role",
                     "Add an Employee",
@@ -43,6 +44,9 @@ function start() {
             switch (response.action) {
                 case "View all Employees":
                     viewAllEmployees();
+                    break;
+                case "View all Departments":
+                    viewAllDepartments();
                     break;
                 case "Add a Department":
                     addDepartment();
@@ -68,6 +72,16 @@ function start() {
 }
 
 // ------------------------  Views  ------------------------- //
+// View All Departments
+function viewAllDepartments() {
+    connection.query(`
+    SELECT * from Departments`,
+    (err, data) => {
+        if (err) throw err;
+        console.table(data);
+        start();
+    })
+}
 // View All Employees
 function viewAllEmployees() {
     connection.query(`
