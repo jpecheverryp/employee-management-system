@@ -34,6 +34,7 @@ function start() {
                     "View all Employees",
                     "Add a Department",
                     "Add a Role",
+                    "Add an Employee",
                     "Exit"
                 ]
             }
@@ -48,6 +49,9 @@ function start() {
                     break;
                 case "Add a Role":
                     addRole();
+                    break;
+                case "Add an Employee":
+                    addEmployee();
                     break;
                 case "Exit":
                     console.log("Terminating Program");
@@ -101,15 +105,15 @@ function addDepartment() {
         ])
         .then(response => {
             connection.query(`
-            INSERT INTO Departments SET ?`, 
-            {
-                name: [response.departmentName]
-            },
-            (err, res) => {
-                if (err) throw err;
-                console.log(`The Department ${response.departmentName} has been Inserted!`);
-                start();
-            })
+            INSERT INTO Departments SET ?`,
+                {
+                    name: [response.departmentName]
+                },
+                (err, res) => {
+                    if (err) throw err;
+                    console.log(`The Department ${response.departmentName} has been Inserted!`);
+                    start();
+                })
         })
         .catch((err) => {
             connection.end();
@@ -149,17 +153,82 @@ function addRole() {
                     department_id: data.find(element => element.name === response.department).id
                 }
                 connection.query(`
-                INSERT INTO Roles SET ?`, 
-                dbInfo, 
-                (err, res) => {
-                    if (err) throw err;
-                    console.log(`The Role ${response.roleTitle} Has been inserted`);
-                    start();
-                })
+                INSERT INTO Roles SET ?`,
+                    dbInfo,
+                    (err) => {
+                        if (err) throw err;
+                        console.log(`The Role ${response.roleTitle} Has been inserted`);
+                        start();
+                    })
             })
             .catch((err) => {
                 connection.end();
                 if (err) throw err;
             })
     });
-}
+};
+// Add an Employee
+function addEmployee() {
+    // Getting list of employees to ask for a manager
+    connection.query(`
+        select id, concat(first_name, ' ', last_name) as e
+        from 
+        employees;`,
+        (err, employeesList) => {
+            if (err) throw err;
+            connection.query(`
+            select id, title from roles;`,
+                (err, rolesList) => {
+                    if (err) throw err;
+                    inquirer
+                        .prompt([
+                            {
+                                name: "firstName",
+                                type: "input",
+                                message: "Insert the first name of the employee: "
+                            },
+                            {
+                                name: "lastName",
+                                type: "input",
+                                message: "Insert the last name of the employee: "
+                            },
+                            {
+                                name: "role",
+                                type: "list",
+                                message: "What role would you like to assign to this employee?",
+                                choices: rolesList.map(role => role.title)
+                            },
+                            {
+                                name: "manager",
+                                type: "list",
+                                message: "Who would you like to assign as manager?",
+                                choices: ['None'].concat(employeesList.map(employee => employee.e))
+                            }
+                        ])
+                        .then(answers => {
+                            const newEmployee = {
+                                first_name: answers.firstName,
+                                last_name: answers.lastName,
+                                role_id: rolesList.find(role => role.title === answers.role).id
+                            }
+                            if(answers.manager !== 'None') {
+                                newEmployee.manager_id = employeesList.find(employee => employee.e === answers.manager).id
+                            } else {
+                                newEmployee.manager_id = null;
+                            }
+                            connection.query(`
+                                INSERT INTO Employees SET ?`,
+                                newEmployee,
+                                (err) => {
+                                    if (err) throw err;
+                                    console.log("The employee has been registered!");
+                                    start();
+                                })
+                        })
+                        .catch((err) => {
+                            connection.end();
+                            if (err) throw err;
+                        });
+                });
+        });
+};
