@@ -32,6 +32,7 @@ function start() {
                 type: "list",
                 choices: [
                     "View all Employees",
+                    "View all Roles",
                     "View all Departments",
                     "Add a Department",
                     "Add a Role",
@@ -44,6 +45,9 @@ function start() {
             switch (response.action) {
                 case "View all Employees":
                     viewAllEmployees();
+                    break;
+                case "View all Roles":
+                    viewAllRoles();
                     break;
                 case "View all Departments":
                     viewAllDepartments();
@@ -81,6 +85,16 @@ function viewAllDepartments() {
         console.table(data);
         start();
     })
+}
+// View All Roles
+function viewAllRoles() {
+    connection.query(`
+        SELECT id, title, salary FROM Roles`,
+        (err, data) => {
+            if (err) throw err;
+            console.table(data);
+            start();
+        })
 }
 // View All Employees
 function viewAllEmployees() {
