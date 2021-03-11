@@ -1,16 +1,8 @@
 // Modules
-const mysql = require("mysql");
 const inquirer = require("inquirer");
 const cTable = require("console.table");
+const connection = require('./config/connection');
 
-// Creating connection to database
-const connection = mysql.createConnection({
-    host: "localhost",
-    port: 3306,
-    user: "root",
-    password: "Delphinet2000",
-    database: "EMS_DB"
-})
 
 //  Connecting to DB
 connection.connect((err) => {
@@ -76,7 +68,6 @@ function start() {
 }
 
 // ------------------------  Views  ------------------------- //
-// View All Departments
 function viewAllDepartments() {
     connection.query(`
     SELECT * from Departments`,
@@ -85,8 +76,8 @@ function viewAllDepartments() {
         console.table(data);
         start();
     })
-}
-// View All Roles
+};
+
 function viewAllRoles() {
     connection.query(`
         SELECT id, title, salary FROM Roles`,
@@ -95,8 +86,8 @@ function viewAllRoles() {
             console.table(data);
             start();
         })
-}
-// View All Employees
+};
+
 function viewAllEmployees() {
     connection.query(`
     SELECT
@@ -119,7 +110,8 @@ function viewAllEmployees() {
         console.table(data);
         start();
     })
-}
+};
+
 // ------------------------  Adding Data  ------------------------- //
 // Add Department
 function addDepartment() {
