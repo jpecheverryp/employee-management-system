@@ -29,6 +29,7 @@ function start() {
                     "Add a Department",
                     "Add a Role",
                     "Add an Employee",
+                    "Update an Employee's role",
                     "Exit"
                 ]
             }
@@ -53,6 +54,9 @@ function start() {
                 case "Add an Employee":
                     addEmployee();
                     break;
+                case "Update an Employee's role":
+                    updateRole();
+                    break;
                 case "Exit":
                     console.log("Terminating Program");
                     connection.end();
@@ -71,11 +75,11 @@ function start() {
 function viewAllDepartments() {
     connection.query(`
     SELECT * from Departments`,
-    (err, data) => {
-        if (err) throw err;
-        console.table(data);
-        start();
-    })
+        (err, data) => {
+            if (err) throw err;
+            console.table(data);
+            start();
+        })
 };
 
 function viewAllRoles() {
@@ -231,7 +235,7 @@ function addEmployee() {
                                 last_name: answers.lastName,
                                 role_id: rolesList.find(role => role.title === answers.role).id
                             }
-                            if(answers.manager !== 'None') {
+                            if (answers.manager !== 'None') {
                                 newEmployee.manager_id = employeesList.find(employee => employee.e === answers.manager).id
                             } else {
                                 newEmployee.manager_id = null;
@@ -252,3 +256,60 @@ function addEmployee() {
                 });
         });
 };
+
+// ------------------------- Updating Data ------------------------- //
+
+function updateRole() {
+    connection.query(`
+        select id, concat(first_name, ' ', last_name) as full_name 
+        from employees;`, (err, employeesList) => {
+        if (err) throw err;
+        connection.query(`
+            select id, title from Roles`, (err, rolesList) => {
+            if (err) throw err;
+            inquirer.prompt([
+                {
+                    name: 'employee',
+                    type: 'list',
+                    choices: employeesList.map(employee => employee.full_name),
+                    message: 'What employee would you like to update?'
+                },
+                {
+                    name: 'role',
+                    type: 'list',
+                    message: 'What role would you like to assign to the employee?',
+                    choices: rolesList.map(role => role.title)
+                }
+            ])
+                .then(
+                    answers => {
+                        const newInfo = {
+                            employeeId: employeesList.find(employee => employee.full_name === answers.employee).id,
+                            roleId: rolesList.find(role => role.title === answers.role).id
+                        }
+                        connection.query(`
+                            UPDATE employees SET ? where ?`,
+                            [
+                                {
+                                    role_id: newInfo.roleId,
+                                },
+                                {
+                                    id: newInfo.employeeId,
+                                }
+                            ],
+                            (err, res) => {
+                                if (err) throw err;
+                                console.log('Employee succesfully updated!');
+                                start();
+                            })
+                    }
+                )
+                .catch(
+                    (err) => {
+                        connection.end();
+                        if (err) throw err;
+                    }
+                );
+        })
+    })
+}
