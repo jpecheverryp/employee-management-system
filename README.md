@@ -15,6 +15,8 @@ The command
 ```npm install``` is also necessary before running the application in order to get the required modules. After that run rhe command ```node index``` to use the application.
 ## Usage
 You can choose between different options in the menu to see or add new roles, departments or employees on the database.
+## Video Demo
+[Youtube Link](https://youtu.be/yn_AUQuUVqY)
 ## License
 This project uses the [MIT](LICENSE) License 
 ## Contribution
